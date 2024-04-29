@@ -52,24 +52,13 @@ and it contains everything necessary for .NET to work with zwave-js.
 
 **server.psi** files are platform specific, but the assembly isn't - it will run on windows, OSX and Linux, and the platform specifics i.e **node** are contained in **server.psi**.
 
-## Prebuilt PSI's
- - Windows x64
- - Windows ARM64
- - macOS x64 (Should support Apple Silicon also via Rosetta 2)
- - Ubuntu Linux x64
- - Ubuntu Linux ARM64
-
-## Building yor own platform specific binary.
+## Building a platform specific binary.
 
 To build an image for your platform (Note this will require Node & NPM on the machine building the image):
  - Clone the repo
  - cd to **./PSI**
  - run `npm install && npm run buld`
  - rename **./dist/server** to **./dist/server.psi**, and distrubute the image with the library.
-
-Every release will include a set of PSI images, so download the one for your platform, and rename it to **server.psi**, and ensure its in the same location as the dll.
-
-There is also a Helper method that pulls down the correct image if one is needed **ZWaveJS.NET.Helpers.DownloadPSI()**  
 
 **server.psi** is not needed, if using the library in Client Mode.
 
