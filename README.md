@@ -13,9 +13,9 @@ ZWaveJS.NET is a class library developed for the .NET framework family, that ope
 
 ## Supported Targets
  - NET 4.8 
- - NET 5.0 
  - NET 6.0 
- - NET 7.0 
+ - NET 7.0
+ - NET 8.0
  - NET Standard 2.0  
  - NET Standard 2.1  
 
