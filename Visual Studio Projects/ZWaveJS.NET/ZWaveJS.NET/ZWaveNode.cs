@@ -80,6 +80,14 @@ namespace ZWaveJS.NET
             Notification?.Invoke(this, CCID, Args);
         }
 
+        public delegate void NodeAliveEvent(ZWaveNode Node);
+        public event NodeAliveEvent NodeAlive;
+        internal void Trigger_NodeAlive()
+        {
+            this.status = Enums.NodeStatus.Alive;
+            NodeAlive?.Invoke(this);
+        }
+
         public delegate void NodeDeadEvent(ZWaveNode Node);
         public event NodeDeadEvent NodeDead;
         internal void Trigger_NodeDead()
@@ -833,6 +841,8 @@ namespace ZWaveJS.NET
         public CommandClass[] commandClasses { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public NodeStatistics statistics { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public DateTime? lastSeen { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public Protocols protocol { get; internal set; }
 
