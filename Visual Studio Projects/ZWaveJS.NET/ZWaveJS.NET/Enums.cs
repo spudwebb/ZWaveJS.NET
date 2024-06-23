@@ -2,7 +2,12 @@
 {
     public class Enums
     {
-       public enum QRCodeVersion
+        public enum ProvisioningEntryStatus
+        {
+            Active = 0,
+            Inactive = 1,
+        }
+        public enum QRCodeVersion
         {
             S2 = 0,
             SmartStart = 1,

@@ -34,7 +34,7 @@ namespace ZWaveJS.NET
         [Newtonsoft.Json.JsonProperty]
         public int? maxInclusionRequestInterval { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
-        public  string uuid { get; internal set; }
+        public string uuid { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public Protocols[] supportedProtocols { get; internal set; }
     }
@@ -168,14 +168,29 @@ namespace ZWaveJS.NET
     {
         internal SmartStartProvisioningEntry() { }
 
+        public SmartStartProvisioningEntry(string dsk, SecurityClass[] securityClasses, Protocols protocol = Protocols.ZWave)
+        {
+            this.dsk = dsk;
+            this.securityClasses = securityClasses;
+            this.requestedSecurityClasses = securityClasses;
+            this.protocol = protocol;
+            this.supportedProtocols = new Protocols[1] { protocol };
+        }
+
+        [Newtonsoft.Json.JsonProperty]
+        public ProvisioningEntryStatus status { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public string dsk { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
-        public int[] securityClasses { get; internal set; }
+        public Protocols? protocol { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public Protocols[] supportedProtocols { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public SecurityClass[] securityClasses { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public SecurityClass[] requestedSecurityClasses { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public int version { get; internal set; }
-        [Newtonsoft.Json.JsonProperty]
-        public int[] requestedSecurityClasses { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public int genericDeviceClass { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
@@ -190,6 +205,8 @@ namespace ZWaveJS.NET
         public int productId { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public decimal applicationVersion { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public int nodeId { get; internal set; }
     }
 
     public class RebuildRoutesOptions
