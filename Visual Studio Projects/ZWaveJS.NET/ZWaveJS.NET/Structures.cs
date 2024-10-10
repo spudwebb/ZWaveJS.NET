@@ -535,6 +535,14 @@ namespace ZWaveJS.NET
         public object value { get; internal set; }
     }
 
+    public class MetadataUpdatedArgs : ValueID
+    {
+        internal MetadataUpdatedArgs() { }
+
+        [Newtonsoft.Json.JsonProperty]
+        public ValueMetadata metadata { get; internal set; }
+    }
+
     public class RefreshInfoOptions
     {
         public bool resetSecurityClasses { get; set; }

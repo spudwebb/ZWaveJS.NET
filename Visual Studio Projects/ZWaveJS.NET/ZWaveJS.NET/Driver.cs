@@ -181,6 +181,18 @@ namespace ZWaveJS.NET
                 });
             });
 
+            NodeEventMap.Add("metadata updated", (JO) =>
+            {
+                int NID = JO.SelectToken("event.nodeId").Value<int>();
+                MetadataUpdatedArgs Args = JO.SelectToken("event.args").ToObject<MetadataUpdatedArgs>();
+                ZWaveNode N = this.Controller.Nodes.Get(NID);
+
+                Task.Run(() =>
+                {
+                    N.Trigger_MetadataUpdated(Args);
+                });
+            });
+
             NodeEventMap.Add("notification", (JO) =>
             {
                 int NID = JO.SelectToken("event.nodeId").ToObject<int>();
