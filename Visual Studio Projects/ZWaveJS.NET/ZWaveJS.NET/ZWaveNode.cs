@@ -52,6 +52,13 @@ namespace ZWaveJS.NET
             ValueNotification?.Invoke(this, Args);
         }
 
+        public delegate void MetadataUpdatedEvent(ZWaveNode Node, MetadataUpdatedArgs Args);
+        public event MetadataUpdatedEvent MetadataUpdated;
+        internal void Trigger_MetadataUpdated(MetadataUpdatedArgs Args)
+        {
+            MetadataUpdated?.Invoke(this, Args);
+        }
+
         public delegate void ValueUpdatedEvent(ZWaveNode Node, ValueUpdatedArgs Args);
         public event ValueUpdatedEvent ValueUpdated;
         internal void Trigger_ValueUpdated(ValueUpdatedArgs Args)
