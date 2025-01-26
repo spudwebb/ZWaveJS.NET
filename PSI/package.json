@@ -1,22 +1,23 @@
 {
-  "version": "4.0.0",
-  "name": "server",
-  "bin": "./server.js",
-  "dependencies": {
-    "@zwave-js/server": "1.35.0",
-    "zwave-js": "12.5.6"
-  },
-  "devDependencies": {
-    "@yao-pkg/pkg": "^5.11.5",
-    "esbuild": "^0.20.2"
-  },
-  "scripts": {
-    "build": "npm run do_esbuild && npm run do_pkgbuild",
-    "do_esbuild": "esbuild server_source.js --bundle --outfile=server.js --platform=node --target=node18 --external:@serialport/* --external:@zwave-js/config --external:zwave-js/package.json",
-    "do_pkgbuild": "pkg . --compress gzip -t host --targets node18"
-  },
-  "pkg": {
-    "assets": "./node_modules/@serialport/bindings-cpp/prebuilds/**/*",
-    "outputPath": "dist"
-  }
+	"version": "4.0.0",
+	"name": "server",
+	"bin": "./server.js",
+	"dependencies": {
+		"@zwave-js/server": "1.40.2",
+		"zwave-js": "14.3.7"
+	},
+	"devDependencies": {
+		"@yao-pkg/pkg": "^6.2.0",
+		"esbuild": "^0.24.2",
+		"eslint": "^8.57.0",
+		"prettier": "^3.4.2"
+	},
+	"scripts": {
+		"build": "npm run do_esbuild && npm run do_pkgbuild",
+		"do_esbuild": "node esb.js",
+		"do_pkgbuild": "pkg ./build/package.json --compress gzip -t host --targets node18 --output ./build/dist/server",
+		"test": "export WS_PORT=7070 SERIAL_PORT=/dev/tty.usbmodem214301 CONFIG=$(<./test_config.json) && ./build/dist/server",
+		"lint": "eslint --ext .js .",
+		"lint:fix": "eslint --fix --ext .js . && prettier -w ."
+	}
 }
