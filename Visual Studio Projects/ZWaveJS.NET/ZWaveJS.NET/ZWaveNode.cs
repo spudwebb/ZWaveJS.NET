@@ -155,6 +155,7 @@ namespace ZWaveJS.NET
             NodeInterviewFailed?.Invoke(this, Args);
         }
         
+        // CHECKED
         public Task<CMDResult> ManuallyIdleNotificationValue(ValueID VID)
         {
             Guid ID = Guid.NewGuid();
@@ -180,6 +181,7 @@ namespace ZWaveJS.NET
             return Result.Task;
         }
 
+        // CHECKED
         public Task<CMDResult> ManuallyIdleNotificationValue(int notificationType, int prevValue, int? endpointIndex = null)
         {
             Guid ID = Guid.NewGuid();
