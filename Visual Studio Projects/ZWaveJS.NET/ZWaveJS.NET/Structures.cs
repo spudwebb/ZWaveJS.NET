@@ -261,15 +261,7 @@ namespace ZWaveJS.NET
         public Enums.SecurityClass[] securityClasses { get; set; }
         public bool clientSideAuth { get; set; }
     }
-
-     public class MetadataUpdatedArgs : ValueID
-     {
-         internal MetadataUpdatedArgs() { }
-
-         [Newtonsoft.Json.JsonProperty]
-         public ValueMetadata metadata { get; internal set; }
-     }
-
+    
     public class ValueMetadata
     {
         internal ValueMetadata() { }
