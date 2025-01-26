@@ -186,6 +186,10 @@
             public const string ManuallyIdleNotificationValue = "node.manually_idle_notification_value";
             public const string LookupManufacturer = "config_manager.lookup_manufacturer";
             public const string LookupDevice = "config_manager.lookup_device";
+            public const string LoadManufacturers = "config_manager.load_manufacturers";
+            public const string LoadDeviceIndex = "config_manager.load_device_index";
+            
+   
         }
 
         public enum SecurityClass

@@ -13,9 +13,29 @@ namespace ZWaveJS.NET
         internal ConfigManager(Driver Driver)
         {
             _driver = Driver;
+
+            Guid ID = Guid.Empty;
+            string RequestPL = string.Empty;
+            Dictionary<string, object> Request;
+            
+            Request = new Dictionary<string, object>();
+            ID = Guid.NewGuid();
+            Request.Add("messageId", ID);
+            Request.Add("command", Enums.Commands.LoadManufacturers);
+            RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
+            
+            Request = new Dictionary<string, object>();
+            ID = Guid.NewGuid();
+            Request.Add("messageId", ID);
+            Request.Add("command", Enums.Commands.LoadDeviceIndex);
+            RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
+    
+           
         }
 
-        // CHECK ME
+        // CHECKED
         public Task<CMDResult> LookupDevice(int ManufacturerID, int ProductTypeID, int ProductId)
         {
             
@@ -45,7 +65,7 @@ namespace ZWaveJS.NET
             return Result.Task;
         }
 
-        // CHECK ME
+        // CHECKED
         public Task<CMDResult> LookupManufacturer(int ManufacturerID)
         {
             Guid ID = Guid.NewGuid();
@@ -64,7 +84,7 @@ namespace ZWaveJS.NET
             Dictionary<string, object> Request = new Dictionary<string, object>();
             Request.Add("messageId", ID);
             Request.Add("command", Enums.Commands.LookupManufacturer);
-            Request.Add("manufacturerId", ID);
+            Request.Add("manufacturerId", ManufacturerID);
             
             string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
             _driver.ClientWebSocket.SendInstant(RequestPL);
