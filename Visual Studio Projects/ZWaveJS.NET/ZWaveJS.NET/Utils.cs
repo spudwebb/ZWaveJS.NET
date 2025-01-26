@@ -17,7 +17,7 @@ namespace ZWaveJS.NET
         }
 
         // CHECKED
-        public Task<CMDResult> ParseQRCodeString(string qr)
+        public Task<CMDResult> ParseQRCodeString(string QR)
         {
             Guid ID = Guid.NewGuid();
 
@@ -31,18 +31,14 @@ namespace ZWaveJS.NET
                     QRProvisioningInformation PQR = JO.SelectToken("result.qrProvisioningInformation").ToObject<QRProvisioningInformation>();
                     Res.SetPayload(PQR);
                 }
-
-
                 Result.SetResult(Res);
-
             });
 
             Dictionary<string, object> Request = new Dictionary<string, object>();
             Request.Add("messageId", ID);
             Request.Add("command", Enums.Commands.ParseQRCodeString);
-            Request.Add("qr", qr);
-
-
+            Request.Add("qr", QR);
+            
             string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
             _driver.ClientWebSocket.SendInstant(RequestPL);
 

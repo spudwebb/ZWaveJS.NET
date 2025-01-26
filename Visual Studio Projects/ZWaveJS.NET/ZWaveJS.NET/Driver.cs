@@ -57,6 +57,7 @@ namespace ZWaveJS.NET
 
         public Controller Controller { get; internal set; }
         public Utils Utils { get; internal set; }
+        public ConfigManager ConfigManager { get; internal set; }
 
         public delegate void DriverReadyEvent();
         public event DriverReadyEvent DriverReady;
@@ -837,18 +838,18 @@ namespace ZWaveJS.NET
                 if (JO.Value<bool>("success"))
                 {
                     Controller C = JO.SelectToken("result.state.controller").ToObject<Controller>(_jsonSerializer);
-                    
-                    
                     ZWaveNode[] Nodes = JO.SelectToken("result.state.nodes").ToObject<ZWaveNode[]>(_jsonSerializer);
+                    
                     C.deviceConfig = Nodes.FirstOrDefault((N) => N.isControllerNode).deviceConfig;
                     Nodes = Nodes.Where((N) => !N.isControllerNode).ToArray();
 
                     this.Controller = C;
                     this.Controller.Nodes = new NodesCollection(Nodes);
-
-                    Inited = true;
-
+                    
                     this.Utils = new Utils(this);
+                    this.ConfigManager = new ConfigManager(this);
+                    
+                    Inited = true;
 
                     DriverReady?.Invoke();
                 }

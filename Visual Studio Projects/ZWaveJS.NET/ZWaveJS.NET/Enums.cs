@@ -184,6 +184,8 @@
             public const string SoftReset = "driver.soft_reset";
             public const string ParseQRCodeString = "utils.parse_qr_code_string";
             public const string ManuallyIdleNotificationValue = "node.manually_idle_notification_value";
+            public const string LookupManufacturer = "config_manager.lookup_manufacturer";
+            public const string LookupDevice = "config_manager.lookup_device";
         }
 
         public enum SecurityClass
