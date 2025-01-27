@@ -7,26 +7,120 @@ namespace ZWaveJS.NET
     {
         public ZWaveOptions()
         {
+            this.timeouts = new CFGTimeouts();
+            this.attempts = new CFGAttempts();
             this.logConfig = new CFGLogConfig();
             this.interview = new CFGInterview();
             this.storage = new CFGStorage();
             this.securityKeys = new CFGSecurityKeys();
             this.securityKeysLongRange = new CFGSecurityKeysLR();
-            this.timeouts = new CFGTimeouts();
-            this.enableSoftReset = true;
             this.disableOptimisticValueUpdate = false;
             this.emitValueUpdateAfterSetValue = false;
+            this.features = new CFGFeatures();
+
         }
 
         public CFGTimeouts timeouts { get; set; }
+        public CFGAttempts attempts { get; set; }
         public CFGLogConfig logConfig { get; set; }
+        public CFGInterview interview { get; set; }
         public CFGStorage storage { get; set; }
         public CFGSecurityKeys securityKeys { get; set; }
         public CFGSecurityKeysLR securityKeysLongRange { get; set; }
-        public CFGInterview interview { get; set; }
-        public bool enableSoftReset { get; set; }
         public bool disableOptimisticValueUpdate { get; set; }
         public bool emitValueUpdateAfterSetValue { get; set; }
+        public CFGFeatures features { get; set; }
+
+
+        public class CFGTimeouts
+        {
+            public int? ack { get; set; }
+            public int? @byte { get; set; }
+            public int? response { get; set; }
+            public int? sendDataAbort { get; set; }
+            public int? sendDataCallback { get; set; }
+            public int? report { get; set; }
+            public int? nonce { get; set; }
+            public int? retryJammed { get; set; }
+            public int? sendToSleep { get; set; }
+            public int? serialAPIStarted { get; set; }
+        }
+    
+        public class CFGAttempts
+        {
+            public int? controller { get; set; }
+            public int? sendData { get; set; }
+            public int? sendDataJammed { get; set; }
+            public int? nodeInterview { get; set; }
+        }
+        
+        public class CFGLogConfig
+        {
+            public CFGLogConfig()
+            {
+                this.enabled = false;
+                this.logToFile = false;
+                this.level = Enums.LogLevel.Debug;
+                this.filename = Path.Combine(Directory.GetCurrentDirectory(), "zwave-js.log");
+            }
+
+            public bool logToFile { get; set; }
+            public bool enabled { get; set; }
+            public Enums.LogLevel level { get; set; }
+            public int[] nodeFilter { get; set; }
+            public string filename { get; set; }
+        }
+        
+        public class CFGInterview
+        {
+            public CFGInterview()
+            {
+                this.queryAllUserCodes = false;
+                this.disableOnNodeAdded = false;
+            }
+
+            public bool queryAllUserCodes { get; set; }
+            public bool disableOnNodeAdded { get; set; }
+        }
+        
+        public class CFGStorage
+        {
+            public CFGStorage()
+            {
+                this.throttle = "normal";
+                this.cacheDir = Path.Combine(Directory.GetCurrentDirectory(), "zwave-js-cache");
+            }
+
+            public string cacheDir { get; set; }
+            public string deviceConfigPriorityDir { get; set; }
+            public string throttle { get; set; }
+        }
+        
+        public class CFGSecurityKeys
+        {
+            public string S2_Unauthenticated { get; set; }
+            public string S2_Authenticated { get; set; }
+            public string S2_AccessControl { get; set; }
+            public string S0_Legacy { get; set; }
+        }
+        
+        public class CFGSecurityKeysLR
+        {
+            public string S2_Authenticated { get; set; }
+            public string S2_AccessControl { get; set; }
+        }
+
+        public class CFGFeatures
+        {
+            public CFGFeatures()
+            {
+                this.softReset = true;
+                this.unresponsiveControllerRecovery = true;
+            }
+            
+            public bool softReset { get; set; }
+            public bool unresponsiveControllerRecovery { get; set; }
+        }
 
         internal bool MissingLRKeys()
         {
@@ -38,9 +132,7 @@ namespace ZWaveJS.NET
 
             if (this.securityKeysLongRange.S2_Authenticated == null)
                 return true;
-
-
-
+            
             return false;
         }
 
@@ -95,71 +187,5 @@ namespace ZWaveJS.NET
 
         }
     }
-
-    public class CFGInterview
-    {
-        public CFGInterview()
-        {
-            this.queryAllUserCodes = false;
-            this.disableOnNodeAdded = false;
-        }
-
-        public bool queryAllUserCodes { get; set; }
-        public bool disableOnNodeAdded { get; set; }
-    }
-
-    public class CFGTimeouts
-    {
-        public int? ack { get; set; }
-        public int? response { get; set; }
-        public int? sendDataCallback { get; set; }
-        public int? report { get; set; }
-        public int? nonce { get; set; }
-        public int? serialAPIStarted { get; set; }
-    }
-
-    public class CFGLogConfig
-    {
-        public CFGLogConfig()
-        {
-            this.enabled = false;
-            this.logToFile = false;
-            this.level = Enums.LogLevel.Debug;
-            this.filename = Path.Combine(Directory.GetCurrentDirectory(), "zwave-js.log");
-        }
-
-        public bool logToFile { get; set; }
-        public bool enabled { get; set; }
-        public Enums.LogLevel level { get; set; }
-        public int[] nodeFilter { get; set; }
-        public string filename { get; set; }
-    }
-
-    public class CFGStorage
-    {
-
-        public CFGStorage()
-        {
-            this.throttle = "normal";
-            this.cacheDir = Path.Combine(Directory.GetCurrentDirectory(), "zwave-js-cache");
-        }
-
-        public string cacheDir { get; set; }
-        public string deviceConfigPriorityDir { get; set; }
-        public string throttle { get; set; }
-    }
-
-    public class CFGSecurityKeys
-    {
-        public string S2_Unauthenticated { get; set; }
-        public string S2_Authenticated { get; set; }
-        public string S2_AccessControl { get; set; }
-        public string S0_Legacy { get; set; }
-    }
-
-    public class CFGSecurityKeysLR
-    {
-        public string S2_Authenticated { get; set; }
-        public string S2_AccessControl { get; set; }
-    }
+    
 }
