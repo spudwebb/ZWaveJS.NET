@@ -377,7 +377,7 @@ namespace ZWaveJS.NET
 
             ControllerEventMap.Add("inclusion started", (JO) =>
             {
-                bool Secure = JO.SelectToken("event.secure").ToObject<bool>();
+                bool Secure = (JO.SelectToken("event.strategy").ToObject<Enums.InclusionStrategy>() != Enums.InclusionStrategy.Insecure);
                
                 Task.Run(() =>
                 {
