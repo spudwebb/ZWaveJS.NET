@@ -4,7 +4,7 @@
 	"bin": "./server.js",
 	"dependencies": {
 		"@zwave-js/server": "1.40.2",
-		"zwave-js": "14.3.7"
+		"zwave-js": "14.3.8"
 	},
 	"devDependencies": {
 		"@yao-pkg/pkg": "^6.2.0",
