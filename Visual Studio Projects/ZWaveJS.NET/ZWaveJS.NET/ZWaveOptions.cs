@@ -20,6 +20,16 @@ namespace ZWaveJS.NET
 
         }
 
+        public string Serialize()
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
+        }
+
+        public static ZWaveOptions FromSerialized(string JSON)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<ZWaveOptions>(JSON);
+        }
+
         public CFGTimeouts timeouts { get; set; }
         public CFGAttempts attempts { get; set; }
         public CFGLogConfig logConfig { get; set; }
