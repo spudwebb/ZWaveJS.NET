@@ -104,6 +104,7 @@ namespace ZWaveJS.NET
             public string cacheDir { get; set; }
             public string deviceConfigPriorityDir { get; set; }
             public string throttle { get; set; }
+            public string deviceConfigExternalDir { get; set; }
         }
         
         public class CFGSecurityKeys
