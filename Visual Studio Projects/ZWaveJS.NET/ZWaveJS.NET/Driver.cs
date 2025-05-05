@@ -23,7 +23,7 @@ namespace ZWaveJS.NET
         private Dictionary<string, Action<JObject>> NodeEventMap;
         private Dictionary<string, Action<JObject>> ControllerEventMap;
         private Dictionary<string, Action<JObject>> DriverEventMap;
-        private Semver.SemVersion SchemaVersionID = new Semver.SemVersion(1, 40, 0);
+        private int _schemaVersion = 42;
         private string SerialPort;
         private bool RequestedExit = false;
         private JsonSerializer _jsonSerializer;
@@ -571,7 +571,7 @@ namespace ZWaveJS.NET
 
             if (SchemaVersion > 0)
             {
-                SchemaVersionID = new Semver.SemVersion(1, SchemaVersion, 0);
+                _schemaVersion = SchemaVersion;
             }
 
             Callbacks = new Dictionary<Guid, Action<JObject>>();
@@ -710,7 +710,7 @@ namespace ZWaveJS.NET
             {
                 if (ClientWebSocket.IsRunning)
                 {
-                    ClientWebSocket.Stop(WebSocketCloseStatus.NormalClosure, "Destroy");
+                    _ = ClientWebSocket.Stop(WebSocketCloseStatus.NormalClosure, "Destroy");
                 }
 
                 if (Host)
@@ -768,7 +768,7 @@ namespace ZWaveJS.NET
                     Callbacks[ID].Invoke(JO);
                     Callbacks.Remove(ID);
                 }
-                catch (Exception Error)
+                catch (Exception)
                 {
                     continue;
                 }
@@ -966,7 +966,7 @@ namespace ZWaveJS.NET
                             Callbacks[MessageID].Invoke(JO);
                             Callbacks.Remove(MessageID);
                         }
-                        catch (Exception Error) { }
+                        catch (Exception) { }
 
                     }
 
@@ -978,26 +978,13 @@ namespace ZWaveJS.NET
                     _ZWaveJSDriverVersion = JO.Value<string>("driverVersion");
                     _ZWaveJSServerVersion = JO.Value<string>("serverVersion");
 
-                    if (Semver.SemVersion.Parse(_ZWaveJSServerVersion, Semver.SemVersionStyles.Strict).Major != SchemaVersionID.Major)
-                    {
-                        StartUpError?.Invoke("The Server Schema version is not compatible with the library version");
-                        return;
-                    }
-
-                    if (Semver.SemVersion.Parse(_ZWaveJSServerVersion, Semver.SemVersionStyles.Strict).ComparePrecedenceTo(SchemaVersionID) < 0)
-                    {
-                        StartUpError?.Invoke("The Server Schema version is lower than what was requested by the library");
-                        return;
-             
-                    }
-
                     Guid CBID = Guid.NewGuid();
                     Callbacks.Add(CBID, SetAPIVersionCB);
 
                     Dictionary<string, object> Request = new Dictionary<string, object>();
                     Request.Add("messageId", CBID.ToString());
                     Request.Add("command", Enums.Commands.SetAPIVersion);
-                    Request.Add("schemaVersion", SchemaVersionID.Minor);
+                    Request.Add("schemaVersion", _schemaVersion);
 
                     string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
 
