@@ -23,7 +23,7 @@ namespace ZWaveJS.NET
         private Dictionary<string, Action<JObject>> NodeEventMap;
         private Dictionary<string, Action<JObject>> ControllerEventMap;
         private Dictionary<string, Action<JObject>> DriverEventMap;
-        private int _schemaVersion = 42;
+        private int _schemaVersion = 43;
         private string SerialPort;
         private bool RequestedExit = false;
         private JsonSerializer _jsonSerializer;
