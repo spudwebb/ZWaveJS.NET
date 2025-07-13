@@ -47,14 +47,16 @@ const run = async () => {
 		plugins: [nativeNodeModulesPlugin],
 		bundle: true,
 		platform: 'node',
-		target: 'node18',
+		target: 'node20',
 		outfile,
-		external: externals
+		external: externals,
+		keepNames: true
 	};
 	await esbuild.build(config);
 
 	const patchedServer = (await readFile(outfile, 'utf-8'))
 		.replace(/__dirname, "\.\.\/"/g, '__dirname, "./node_modules/@serialport/bindings-cpp"')
+		.replace('"../.."', '"./node_modules/@zwave-js/config"')
 		.replace('../../package.json', './node_modules/@zwave-js/server/package.json');
 
 	await writeFile(outfile, patchedServer);
@@ -77,7 +79,6 @@ const run = async () => {
 		delete Package.dependencies;
 		delete Package.devDependencies;
 		delete Package.scripts;
-		delete Package.exports;
 		delete Package.optionalDependencies;
 	};
 
