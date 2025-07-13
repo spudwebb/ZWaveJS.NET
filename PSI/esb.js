@@ -56,7 +56,6 @@ const run = async () => {
 
 	const patchedServer = (await readFile(outfile, 'utf-8'))
 		.replace(/__dirname, "\.\.\/"/g, '__dirname, "./node_modules/@serialport/bindings-cpp"')
-		.replace('"../.."', '"./node_modules/@zwave-js/config"')
 		.replace('../../package.json', './node_modules/@zwave-js/server/package.json');
 
 	await writeFile(outfile, patchedServer);

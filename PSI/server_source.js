@@ -1,9 +1,13 @@
 const { Driver } = require('zwave-js');
 const { ZwavejsServer } = require('@zwave-js/server');
+const { PKGFSDriver } = require('./PKGFSDriver');
 
 const serialPort = process.env.SERIAL_PORT;
 const wsPort = parseInt(process.env.WS_PORT);
 const driverOptions = JSON.parse(process.env.CONFIG);
+driverOptions.host = {
+	fs: new PKGFSDriver()
+};
 let ServerStarted = false;
 let DriverStarted = false;
 
