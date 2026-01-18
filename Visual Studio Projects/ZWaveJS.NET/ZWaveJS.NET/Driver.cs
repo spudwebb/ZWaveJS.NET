@@ -23,7 +23,7 @@ namespace ZWaveJS.NET
         private Dictionary<string, Action<JObject>> NodeEventMap;
         private Dictionary<string, Action<JObject>> ControllerEventMap;
         private Dictionary<string, Action<JObject>> DriverEventMap;
-        private int _schemaVersion = 43;
+        private int _schemaVersion = 44;
         private string SerialPort;
         private bool RequestedExit = false;
         private JsonSerializer _jsonSerializer;
@@ -81,6 +81,17 @@ namespace ZWaveJS.NET
 
         private void MapNodeEvents()
         {
+               NodeEventMap.Add("node info received", (JO) =>
+            {
+                int NID = JO.SelectToken("event.nodeId").ToObject<int>();
+                ZWaveNode N = this.Controller.Nodes.Get(NID);
+
+                Task.Run(() =>
+                {
+                    N.Trigger_NodeInfo();
+                });
+            });
+
             NodeEventMap.Add("check lifeline health progress", (JO) =>
             {
                 int NID = JO.SelectToken("event.nodeId").ToObject<int>();
