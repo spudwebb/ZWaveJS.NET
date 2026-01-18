@@ -8,20 +8,24 @@ namespace ZWaveJS.NET
 {
     public class Endpoint
     {
-        internal Endpoint() { }
+        private Driver _driver;
+        internal Endpoint(Driver driver = null)
+        {
+            _driver = driver;
+        }
 
-
+        // Checked as of : 3.5.0
         public Task<CMDResult> SupportsCCAPI(int CommandClass)
         {
             Guid ID = Guid.NewGuid();
 
             TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            Driver.Callbacks.Add(ID, (JO) =>
+            _driver.Callbacks.Add(ID, (JO) =>
             {
                 CMDResult Res = new CMDResult(JO);
                 if (Res.Success)
                 {
-                    Res.SetPayload(JO.SelectToken("result.supported").Value<bool>());
+                    Res.SetPayload(JO.SelectToken("result.supported").ToObject<bool>());
                 }
                 Result.SetResult(Res);
 
@@ -36,22 +40,24 @@ namespace ZWaveJS.NET
             Request.Add("commandClass", CommandClass);
 
             string RequestPL = JsonConvert.SerializeObject(Request);
-            Driver.Client.SendAsync(RequestPL);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
 
             return Result.Task;
         }
 
+
+        // Checked as of : 3.5.0
         public Task<CMDResult> InvokeCCAPI(int CommandClass, string Method, params object[] Params)
         {
             Guid ID = Guid.NewGuid();
 
             TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            Driver.Callbacks.Add(ID, (JO) =>
+            _driver.Callbacks.Add(ID, (JO) =>
             {
                 CMDResult Res = new CMDResult(JO);
                 if (Res.Success)
                 {
-                    Res.SetPayload(JsonConvert.DeserializeObject<JObject>(JO.SelectToken("result").ToString()));
+                    Res.SetPayload(JO.SelectToken("result").ToObject<JObject>());
                 }
                 Result.SetResult(Res);
 
@@ -69,7 +75,7 @@ namespace ZWaveJS.NET
 
 
             string RequestPL = JsonConvert.SerializeObject(Request);
-            Driver.Client.SendAsync(RequestPL);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
 
             return Result.Task;
         }
@@ -86,5 +92,7 @@ namespace ZWaveJS.NET
         public DeviceClass deviceClass { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public CommandClass[] commandClasses { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public string endpointLabel { get; internal set; }
     }
 }

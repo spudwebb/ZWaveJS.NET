@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using Newtonsoft.Json.Linq;
 
 namespace ZWaveJS.NET
@@ -19,11 +16,23 @@ namespace ZWaveJS.NET
         {
             this.Success = Res.Value<bool>("success");
 
+            if (Res.ContainsKey("result"))
+            {
+                bool? success = Res.SelectToken("result.success")?.Value<bool?>();
+                if (success.HasValue)
+                    SetPayload(success.Value);
+            }
+
             if(Res.ContainsKey("zwaveErrorCode"))
                 this.ErrorCode = Res.Value<string>("zwaveErrorCode");
 
             if (Res.ContainsKey("zwaveErrorMessage"))
                 this.Message = Res.Value<string>("zwaveErrorMessage");
+        }
+
+        public T ResultPayloadAs<T>()
+        {
+            return ResultPayload is T value ? value : default!;
         }
 
         internal void SetPayload(object Payload)

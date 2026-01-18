@@ -1,20 +1,23 @@
 {
-  "version": "3.1.0",
-  "name": "server",
-  "bin": "./server.js",
-  "dependencies": {
-    "@zwave-js/server": "1.17.0",
-    "zwave-js": "9.4.0"
-  },
-  "devDependencies": {
-    "pkg": "^5.7.0"
-  },
-  "scripts": {
-    "build": "pkg . --compress GZip -t host"
-  },
-  "pkg": {
-    "assets": "./node_modules/@serialport/bindings-cpp/prebuilds/**/*",
-    "outputPath": "dist"
-  },
-  "packageManager": "yarn@3.2.1"
+	"version": "4.0.0",
+	"name": "server",
+	"bin": "./server.js",
+	"dependencies": {
+		"@zwave-js/server": "^3.5.0",
+		"zwave-js": "^15.20.0"
+	},
+	"devDependencies": {
+		"@yao-pkg/pkg": "^6.12.0",
+		"esbuild": "^0.27.2",
+		"eslint": "^9.39.2",
+		"prettier": "^3.8.0"
+	},
+	"scripts": {
+		"build": "npm run do_esbuild && npm run do_pkgbuild",
+		"do_esbuild": "node esb.js",
+		"do_pkgbuild": "pkg ./build/package.json --compress gzip -t host --targets node20 --output ./build/dist/server",
+		"test": "export WS_PORT=7070 SERIAL_PORT=/dev/tty.usbmodem114201 CONFIG=$(<./test_config.json) && ./build/dist/server",
+		"lint": "eslint --ext .js .",
+		"lint:fix": "eslint --fix --ext .js . && prettier -w ."
+	}
 }

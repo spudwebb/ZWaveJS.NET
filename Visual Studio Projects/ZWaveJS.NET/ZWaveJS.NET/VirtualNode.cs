@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
@@ -10,24 +8,25 @@ namespace ZWaveJS.NET
 {
     public class VirtualNode
     {
-
-        internal VirtualNode(int[] Nodes)
+        internal VirtualNode(Driver driver, int[] Nodes)
         {
+            _driver = driver;
             this.Nodes = Nodes;
         }
 
+        // Checked as of : 3.5.0
         public Task<CMDResult> GetEndpointCount()
         {
             Guid ID = Guid.NewGuid();
 
             TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
 
-            Driver.Callbacks.Add(ID, (JO) =>
+            _driver.Callbacks.Add(ID, (JO) =>
             {
                 CMDResult Res = new CMDResult(JO);
                 if (Res.Success)
                 {
-                    Res.SetPayload(JO.SelectToken("result.count").Value<int>());
+                    Res.SetPayload(JO.SelectToken("result.count").ToObject<int>());
                 }
                 Result.SetResult(Res);
             });
@@ -38,20 +37,25 @@ namespace ZWaveJS.NET
             Request.Add("nodeIDs", this.Nodes);
 
             string RequestPL = JsonConvert.SerializeObject(Request);
-            Driver.Client.SendAsync(RequestPL);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
 
             return Result.Task;
         }
 
+        // Checked as of : 3.5.0
         public Task<CMDResult> SetValue(ValueID ValueID, object Value, SetValueAPIOptions Options = null)
         {
             Guid ID = Guid.NewGuid();
 
             TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            Driver.Callbacks.Add(ID, (JO) =>
+            _driver.Callbacks.Add(ID, (JO) =>
             {
                 CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
+                if (Res.Success)
+                {
+                    Res.SetPayload(JO.SelectToken("result.result").ToObject<SetValueResult>());
+                }
+                
             });
 
             Dictionary<string, object> Request = new Dictionary<string, object>();
@@ -67,22 +71,23 @@ namespace ZWaveJS.NET
             }
 
             string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            Driver.Client.SendAsync(RequestPL);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
 
             return Result.Task;
         }
 
+        // Checked as of : 3.5.0
         public Task<CMDResult> GetDefinedValueIDs()
         {
             Guid ID = Guid.NewGuid();
 
             TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            Driver.Callbacks.Add(ID, (JO) =>
+            _driver.Callbacks.Add(ID, (JO) =>
             {
                 CMDResult Res = new CMDResult(JO);
                 if (Res.Success)
                 {
-                    Res.SetPayload(JsonConvert.DeserializeObject<ValueID[]>(JO.SelectToken("result.valueIDs").ToString()));
+                    Res.SetPayload(JO.SelectToken("result.valueIDs").ToObject<ValueID[]>());
                 }
 
                 Result.SetResult(Res);
@@ -95,22 +100,23 @@ namespace ZWaveJS.NET
 
 
             string RequestPL = JsonConvert.SerializeObject(Request);
-            Driver.Client.SendAsync(RequestPL);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
 
             return Result.Task;
         }
 
+        // Checked as of : 3.5.0
         public Task<CMDResult> SupportsCCAPI(int CommandClass)
         {
             Guid ID = Guid.NewGuid();
 
             TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            Driver.Callbacks.Add(ID, (JO) =>
+            _driver.Callbacks.Add(ID, (JO) =>
             {
                 CMDResult Res = new CMDResult(JO);
                 if (Res.Success)
                 {
-                    Res.SetPayload(JO.SelectToken("result.supported").Value<bool>());
+                    Res.SetPayload(JO.SelectToken("result.supported").ToObject<bool>());
 
                 }
                 Result.SetResult(Res);
@@ -123,22 +129,23 @@ namespace ZWaveJS.NET
             Request.Add("commandClass", CommandClass);
 
             string RequestPL = JsonConvert.SerializeObject(Request);
-            Driver.Client.SendAsync(RequestPL);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
 
             return Result.Task;
         }
-
+        
+        // Checked as of : 3.5.0
         public Task<CMDResult> InvokeCCAPI(int CommandClass, string Method, params object[] Params)
         {
             Guid ID = Guid.NewGuid();
 
             TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            Driver.Callbacks.Add(ID, (JO) =>
+            _driver.Callbacks.Add(ID, (JO) =>
             {
                 CMDResult Res = new CMDResult(JO);
                 if (Res.Success)
                 {
-                    Res.SetPayload(JsonConvert.DeserializeObject<JObject>(JO.SelectToken("result").ToString()));
+                    Res.SetPayload(JO.SelectToken("result").ToObject<JObject>());
                 }
                 Result.SetResult(Res);
 
@@ -153,12 +160,13 @@ namespace ZWaveJS.NET
             Request.Add("args", Params);
 
             string RequestPL = JsonConvert.SerializeObject(Request);
-            Driver.Client.SendAsync(RequestPL);
+            _driver.ClientWebSocket.SendInstant(RequestPL);
 
             return Result.Task;
         }
 
         private int[] Nodes { get; set; }
+        private Driver _driver { get; set; }
     }
 
     
