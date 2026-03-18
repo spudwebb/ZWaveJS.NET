@@ -371,13 +371,21 @@ namespace ZWaveJS.NET
             TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
             _driver.Callbacks.Add(ID, (JO) =>
             {
-                CMDResult Res = new CMDResult(JO);
-                if (Res.Success)
+                try
                 {
-                    SetValueResult SVR = JO.SelectToken("result.result").ToObject<SetValueResult>();
-                    Res.SetPayload(SVR);
+                    CMDResult Res = new CMDResult(JO);
+                    if (Res.Success)
+                    {
+                        SetValueResult SVR = JO.SelectToken("result.result").ToObject<SetValueResult>();
+                        Res.SetPayload(SVR);
+                    }
+                    Result.SetResult(Res);
                 }
-                Result.SetResult(Res);
+                catch (Exception ex)
+                {
+                    // ensure any throw in user callback doesn't crash completion
+                    Result.TrySetException(ex);
+                }
             });
 
             Dictionary<string, object> Request = new Dictionary<string, object>();

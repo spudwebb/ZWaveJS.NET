@@ -975,10 +975,14 @@ namespace ZWaveJS.NET
                         try
                         {
                             Callbacks[MessageID].Invoke(JO);
+                        }
+                        catch (Exception) 
+                        { 
+                        }
+                        finally
+                        {
                             Callbacks.Remove(MessageID);
                         }
-                        catch (Exception) { }
-
                     }
 
                     return;
