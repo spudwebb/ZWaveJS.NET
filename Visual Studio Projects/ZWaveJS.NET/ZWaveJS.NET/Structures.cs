@@ -47,7 +47,7 @@ namespace ZWaveJS.NET
         [Newtonsoft.Json.JsonProperty]
         public Enums.SetValueStatus status { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
-        public string remainingDuration { get; internal set; }
+        public object remainingDuration { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public string message { get; internal set; }
     }
