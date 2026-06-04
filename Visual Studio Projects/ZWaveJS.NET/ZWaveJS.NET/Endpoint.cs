@@ -57,6 +57,24 @@ namespace ZWaveJS.NET
             });
         }
 
+        public Task<CMDResult> GetCCs()
+        {
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.GetCCs },
+                { "nodeId", this.nodeId },
+                { "endpoint", this.index }
+            };
+
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
+                if (Res.Success)
+                {
+                    Res.SetPayload(JO.SelectToken("result.commandClasses").ToObject<Dictionary<int, CommandClassInfo>>());
+                }
+            });
+        }
+
         [Newtonsoft.Json.JsonProperty]
         public int nodeId { get; internal set; }
         [Newtonsoft.Json.JsonProperty]

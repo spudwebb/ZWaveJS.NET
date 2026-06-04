@@ -362,6 +362,20 @@ namespace ZWaveJS.NET
         public bool isSecure { get; internal set; }
     }
 
+    public class CommandClassInfo
+    {
+        internal CommandClassInfo() { }
+
+        [Newtonsoft.Json.JsonProperty]
+        public bool isSupported { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public bool isControlled { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public bool secure { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public int version { get; internal set; }
+    }
+
     public class FirmwareVersion
     {
         internal FirmwareVersion() { }

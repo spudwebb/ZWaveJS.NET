@@ -180,6 +180,7 @@
             // ---------------- ENDPOINT ----------------
             public const string InvokeCCAPI = "endpoint.invoke_cc_api";
             public const string SupportsCCAPI = "endpoint.supports_cc_api";
+            public const string GetCCs = "endpoint.get_ccs";
 
             // ---------------- MULTICAST GROUP ----------------
             public const string MCGetEndpointCount = "multicast_group.get_endpoint_count";
