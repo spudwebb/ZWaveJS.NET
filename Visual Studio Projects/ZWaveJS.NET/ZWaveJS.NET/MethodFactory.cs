@@ -22,92 +22,53 @@ namespace ZWaveJS.NET
 
         public static Func<Dictionary<string, object>, Task<CMDResult>> CreateCLASS(Driver Runtime, string ServerMethod, Type MappedClass, string ObjectPath)
         {
-            return (x) => Execute(Runtime, ServerMethod, x,MappedClass, ObjectPath);
+            return (x) => Execute(Runtime, ServerMethod, x, MappedClass, ObjectPath);
         }
 
         private static Task<CMDResult> Execute(Driver Runtime, string ServerMethod, Dictionary<string, object> Args, string ObjectPath)
         {
-            Guid ID = Guid.NewGuid();
+            // create a shallow copy to avoid mutating caller dictionary
+            var request = new Dictionary<string, object>(Args ?? new Dictionary<string, object>());
 
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            // ensure command is set as expected by the server
+            request.Remove("messageId");
+            request["command"] = ServerMethod;
 
-            Runtime.Callbacks.Add(ID, (JO) =>
+            return Runtime.SendRequestAsync(request, (JO, Res) =>
             {
-                CMDResult Res = new CMDResult(JO);
                 if (Res.Success)
                 {
                     object Obj = JO.SelectToken(ObjectPath).ToObject<object>();
                     Res.SetPayload(Obj);
                 }
-                Result.SetResult(Res);
-
             });
-
-            Args.Remove("messageId");
-            Args.Remove("command");
-
-            Args.Add("messageId", ID);
-            Args.Add("command", ServerMethod);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Args);
-            Runtime.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         private static Task<CMDResult> Execute(Driver Runtime, string ServerMethod, Dictionary<string, object> Args, Type MappedClass, string ObjectPath)
         {
-            Guid ID = Guid.NewGuid();
+            var request = new Dictionary<string, object>(Args ?? new Dictionary<string, object>());
 
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            request.Remove("messageId");
+            request["command"] = ServerMethod;
 
-            Runtime.Callbacks.Add(ID, (JO) =>
+            return Runtime.SendRequestAsync(request, (JO, Res) =>
             {
-                CMDResult Res = new CMDResult(JO);
                 if (Res.Success)
                 {
                     object Obj = JO.SelectToken(ObjectPath).ToObject(MappedClass);
                     Res.SetPayload(Obj);
                 }
-                Result.SetResult(Res);
-
             });
-
-            Args.Remove("messageId");
-            Args.Remove("command");
-
-            Args.Add("messageId", ID);
-            Args.Add("command", ServerMethod);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Args);
-            Runtime.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         private static Task<CMDResult> Execute(Driver Runtime, string ServerMethod, Dictionary<string, object> Args)
         {
-            Guid ID = Guid.NewGuid();
+            var request = new Dictionary<string, object>(Args ?? new Dictionary<string, object>());
 
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            request.Remove("messageId");
+            request["command"] = ServerMethod;
 
-            Runtime.Callbacks.Add(ID, (JO) =>
-            {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
-
-            });
-
-            Args.Remove("messageId");
-            Args.Remove("command");
-            
-            Args.Add("messageId", ID);
-            Args.Add("command", ServerMethod);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Args);
-            Runtime.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return Runtime.SendRequestAsync(request);
         }
     }
 }

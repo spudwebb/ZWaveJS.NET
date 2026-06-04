@@ -144,439 +144,268 @@ namespace ZWaveJS.NET
         // Checked as of : 3.5.0
         public Task<CMDResult> GetAvailableFirmwareUpdates(int NodeID, bool IncludePrereleases, UsageEnvironment Environment, string APIKey = null)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
             if (Environment == UsageEnvironment.Commercial && string.IsNullOrEmpty(APIKey))
             {
                 CMDResult Res = new CMDResult(Enums.ErrorCodes.CommercialAPIKey, "A valid API license key is required for commercial use", false);
-                Result.SetResult(Res);
-                return Result.Task;
+                return Task.FromResult(Res);
             }
 
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                
+                { "command", Enums.Commands.GetAvailableFirmwareUpdates },
+                { "nodeId", NodeID },
+                { "apiKey", APIKey ?? Driver.FWUSAPIKey },
+                { "includePrereleases", IncludePrereleases }
+            };
 
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     FirmwareUpdateInfo[] FUI = JO.SelectToken("result.updates").ToObject<FirmwareUpdateInfo[]>();
                     Res.SetPayload(FUI);
                 }
-                Result.SetResult(Res);
-
             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.GetAvailableFirmwareUpdates);
-            Request.Add("nodeId", NodeID);
-            Request.Add("apiKey", APIKey ?? Driver.FWUSAPIKey);
-            Request.Add("includePrereleases", IncludePrereleases);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> FirmwareUpdateOTA(int NodeID, FirmwareUpdateInfo Update)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
+                { "command", Enums.Commands.FirmwareUpdateOTA },
+                { "nodeId", NodeID },
+                { "updateInfo", Update }
+            };
+
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     NodeFirmwareUpdateResultArgs FUR = JO.SelectToken("result.result").ToObject<NodeFirmwareUpdateResultArgs>();
                     Res.SetPayload(FUR);
                 }
-                Result.SetResult(Res);
             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.FirmwareUpdateOTA);
-            Request.Add("nodeId", NodeID);
-            Request.Add("updateInfo", Update);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> GetRFRegion()
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
+                { "command", Enums.Commands.GetRFRegion }
+            };
+
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     Enums.RFRegion Region = JO.SelectToken("result.region").ToObject<Enums.RFRegion>();
                     Res.SetPayload(Region);
                 }
-                Result.SetResult(Res);
-
             });
-            
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.GetRFRegion);
-            
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> SetRFRegion(Enums.RFRegion Region)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
-            });
-            
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.SetRFRegion);
-            Request.Add("region", Region);
+                { "command", Enums.Commands.SetRFRegion },
+                { "region", Region }
+            };
 
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
         
         // Checked as of : 3.5.0
         public Task<CMDResult> SetMaxLongRangePowerlevel(decimal Limit)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
-            });
+                { "limit", Limit },
+                { "command", Enums.Commands.SetLRMaxPower }
+            };
 
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("limit", Limit);
-            Request.Add("command", Enums.Commands.SetLRMaxPower);
-
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> GetMaxLongRangePowerlevel()
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
+                { "command", Enums.Commands.GetLRMaxPower }
+            };
 
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     decimal Level = JO.SelectToken("result.limit").ToObject<decimal>();
                     Res.SetPayload(Level);
                 }
-                Result.SetResult(Res);
-
             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.GetLRMaxPower);
-
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> GetPowerLevel()
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
+                { "command", Enums.Commands.GetPowerlevel }
+            };
 
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     PowerLevel Level = JO.SelectToken("result").ToObject<PowerLevel>();
                     Res.SetPayload(Level);
                 }
-                Result.SetResult(Res);
-
             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.GetPowerlevel);
-
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> SetPowerLevel(decimal PowerLevel, decimal Measured0dBm)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
+                { "command", Enums.Commands.SetPowerlevel },
+                { "powerlevel", PowerLevel },
+                { "measured0dBm", Measured0dBm }
+            };
 
-            });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.SetPowerlevel);
-            Request.Add("powerlevel", PowerLevel);
-            Request.Add("measured0dBm", Measured0dBm);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
       
+
 
         // Checked as of : 3.5.0
         public Task<CMDResult> FirmwareUpdateOTW(FirmwareUpdate Update)
         {
             if (Update.firmwareTarget != null)
             {
-                TaskCompletionSource<CMDResult> Fail = new TaskCompletionSource<CMDResult>();
                 CMDResult Res = new CMDResult(Enums.ErrorCodes.WrongOverride, "Please use the override that DOES NOT include 'firmwareTarget'", false);
-                Fail.SetResult(Res);
-
-                return Fail.Task;
+                return Task.FromResult(Res);
             }
 
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
+                { "command", Enums.Commands.FirmwareUpdateOTW },
+                { "file", Update.data },
+                { "filename", Update.filename }
+            };
 
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     ControllerFirmwareUpdateResultArgs UpdateResult = JO.SelectToken("result.result").ToObject<ControllerFirmwareUpdateResultArgs>();
                     Res.SetPayload(UpdateResult);
                 }
-                Result.SetResult(Res);
-
             });
-
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.FirmwareUpdateOTW);
-            Request.Add("file", Update.data);
-            Request.Add("filename", Update.filename);
-            
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> GetProvisioningEntries()
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.GetProvisioningEntries }
+            };
 
-                 if (Res.Success)
-                 {
-                     SmartStartProvisioningEntry[] Entries = JO.SelectToken("result.entries").ToObject<SmartStartProvisioningEntry[]>();
-                     Res.SetPayload(Entries);
-                 }
-                 Result.SetResult(Res);
-
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.GetProvisioningEntries);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
+                if (Res.Success)
+                {
+                    SmartStartProvisioningEntry[] Entries = JO.SelectToken("result.entries").ToObject<SmartStartProvisioningEntry[]>();
+                    Res.SetPayload(Entries);
+                }
+            });
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> ToggleRF(bool Enabled)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
+                { "command", Enums.Commands.ToggleRF },
+                { "enabled", Enabled }
+            };
 
-            });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.ToggleRF);
-            Request.Add("enabled", Enabled);
-            
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> RemoveAssociations(AssociationAddress Source, int Group, AssociationAddress[] Targets)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 Result.SetResult(Res);
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.RemoveAssociations },
+                { "nodeId", Source.nodeId },
+                { "endpoint", Source.endpoint },
+                { "group", Group },
+                { "associations", Targets }
+            };
 
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.RemoveAssociations);
-            Request.Add("nodeId", Source.nodeId);
-            Request.Add("endpoint", Source.endpoint);
-            Request.Add("group", Group);
-            Request.Add("associations", Targets);
-
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> AddAssociations(AssociationAddress Source, int Group, AssociationAddress[] Targets)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-           _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
+                { "command", Enums.Commands.AddAssociations },
+                { "nodeId", Source.nodeId },
+                { "endpoint", Source.endpoint },
+                { "group", Group },
+                { "associations", Targets }
+            };
 
-            });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.AddAssociations);
-            Request.Add("nodeId", Source.nodeId);
-            Request.Add("endpoint", Source.endpoint);
-            Request.Add("group", Group);
-            Request.Add("associations", Targets);
-
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-           _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> GetAssociations(int Node, int Endpoint)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 if (Res.Success)
-                 {
-                     Dictionary<int, AssociationAddress[]> Associations = JO.SelectToken("result.associations").ToObject<Dictionary<int, AssociationAddress[]>>();
-                     Res.SetPayload(Associations);
-                 }
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.GetAssociations },
+                { "nodeId", Node },
+                { "endpoint", Endpoint }
+            };
 
-                 Result.SetResult(Res);
-
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.GetAssociations);
-            Request.Add("nodeId", Node);
-            Request.Add("endpoint", Endpoint);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
+                if (Res.Success)
+                {
+                    Dictionary<int, AssociationAddress[]> Associations = JO.SelectToken("result.associations").ToObject<Dictionary<int, AssociationAddress[]>>();
+                    Res.SetPayload(Associations);
+                }
+            });
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> GetAssociationGroups(int Node, int Endpoint)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 if (Res.Success)
-                 {
-                     Dictionary<int, AssociationGroup> Groups = JO.SelectToken("result.groups").ToObject<Dictionary<int, AssociationGroup>>();
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.GetAssociationGroups },
+                { "nodeId", Node },
+                { "endpoint", Endpoint }
+            };
 
-                     Res.SetPayload(Groups);
-                 }
-
-                 Result.SetResult(Res);
-
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.GetAssociationGroups);
-            Request.Add("nodeId", Node);
-            Request.Add("endpoint", Endpoint);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
+                if (Res.Success)
+                {
+                    Dictionary<int, AssociationGroup> Groups = JO.SelectToken("result.groups").ToObject<Dictionary<int, AssociationGroup>>();
+                    Res.SetPayload(Groups);
+                }
+            });
         }
 
         // Checked as of : 3.5.0
@@ -585,28 +414,19 @@ namespace ZWaveJS.NET
             ConvertRestoreNVMProgressSub = ConvertProgress;
             RestoreNVMProgressSub = RestoreProgress;
 
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 if (Res.Success)
-                 {
-                     _driver.Restart();
-                 }
-                 Result.SetResult(Res);
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.RestoreNVM },
+                { "nvmData", Convert.ToBase64String(NVMData) }
+            };
 
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.RestoreNVM);
-            Request.Add("nvmData", Convert.ToBase64String(NVMData));
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
+                if (Res.Success)
+                {
+                    _driver.Restart();
+                }
+            });
         }
 
         // Checked as of : 3.5.0
@@ -614,29 +434,19 @@ namespace ZWaveJS.NET
         {
             BackupNVMProgressSub = OnProgress;
 
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 if (Res.Success)
-                 {
-                     string B64 = JO.SelectToken("result.nvmData").ToObject<string>();
-                     Res.SetPayload(Convert.FromBase64String(B64));
-                 }
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.BackUpNVM }
+            };
 
-                 Result.SetResult(Res);
-
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.BackUpNVM);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
+                if (Res.Success)
+                {
+                    string B64 = JO.SelectToken("result.nvmData").ToObject<string>();
+                    Res.SetPayload(Convert.FromBase64String(B64));
+                }
+            });
         }
 
         // Checked as of : 3.5.0
@@ -646,22 +456,17 @@ namespace ZWaveJS.NET
             GrantSecurityClassesSub = null;
             AbortSub = null;
 
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
             switch (Options.strategy)
             {
                 case Enums.InclusionStrategy.Default:
-                    CMDResult Res = new CMDResult(Enums.ErrorCodes.InvalidStrategy, "Invalid Strategy for 'ReplaceFailedNode' Valid Strategies are : [Insecure, Security_S0, Security_S2]", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    CMDResult invalid = new CMDResult(Enums.ErrorCodes.InvalidStrategy, "Invalid Strategy for 'ReplaceFailedNode' Valid Strategies are : [Insecure, Security_S0, Security_S2]", false);
+                    return Task.FromResult(invalid);
 
                 case Enums.InclusionStrategy.Security_S2:
                     ValidateDSKAndEnterPINSub = Options.userCallbacks?.validateDSKAndEnterPIN ?? null;
                     GrantSecurityClassesSub = Options.userCallbacks?.grantSecurityClasses ?? null;
                     AbortSub = Options.userCallbacks?.abort ?? null;
                     break;
-
             }
 
             if (Options.strategy == Enums.InclusionStrategy.Security_S2)
@@ -669,15 +474,13 @@ namespace ZWaveJS.NET
                 if (ValidateDSKAndEnterPINSub == null || GrantSecurityClassesSub == null || AbortSub == null)
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingS2Callbacks, "S2 Security require userCallbacks to be provided [validateDSKAndEnterPIN, grantSecurityClasses, abort]", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
 
                 if (_driver.Options != null && _driver.Options.MissingKeys(true, false))
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingKeys, "Missing Security Keys in Options", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
             }
 
@@ -686,142 +489,88 @@ namespace ZWaveJS.NET
                 if (_driver.Options != null && _driver.Options.MissingKeys(false, true))
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingKeys, "Missing Security Keys in Options", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
             }
 
             if (_driver.Options != null && !_driver.Options.CheckKeyLength())
             {
                 CMDResult Res = new CMDResult(Enums.ErrorCodes.InvalidkeyLength, "Invalid Key length. All Security Keys must be a 32 character hexadecimal string (representing 16 bytes)", false);
-                Result.SetResult(Res);
-                return Result.Task;
+                return Task.FromResult(Res);
             }
 
+            var optionsDict = new Dictionary<string, object>
+            {
+                { "strategy", (int)Options.strategy }
+            };
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 Result.SetResult(Res);
-             });
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.ReplaceFailedNode },
+                { "nodeId", NodeID },
+                { "options", optionsDict }
+            };
 
-            Dictionary<string, object> _Options = new Dictionary<string, object>();
-            _Options.Add("strategy", (int)Options.strategy);
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.ReplaceFailedNode);
-            Request.Add("nodeId", NodeID);
-            Request.Add("options", _Options);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> RemoveFailedNode(int NodeID)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.RemoveFailedNode },
+                { "nodeId", NodeID }
+            };
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult RES = new CMDResult(JO);
-                 Result.SetResult(RES);
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.RemoveFailedNode);
-            Request.Add("nodeId", NodeID);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> RebuildNodeRoutes(int NodeID)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.RebuildNodeRoutes },
+                { "nodeId", NodeID }
+            };
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 Result.SetResult(Res);
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.RebuildNodeRoutes);
-            Request.Add("nodeId", NodeID);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> BeginRebuildingRoutes(RebuildRoutesOptions Options)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.BeginRebuildingRoutes },
+                { "options", Options }
+            };
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 if (Res.Success && Res.ResultPayloadAs<bool>())
-                 {
-                     this.isRebuildingRoutes = true;
-                 }
-                 Result.SetResult(Res);
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.BeginRebuildingRoutes);
-            Request.Add("options", Options);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
+                if (Res.Success && Res.ResultPayloadAs<bool>())
+                {
+                    this.isRebuildingRoutes = true;
+                }
+            });
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> StopRebuildingRoutes()
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.StopRebuildingRoutes }
+            };
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 if (Res.Success && Res.ResultPayloadAs<bool>())
-                 {
-                     this.isRebuildingRoutes = false;
-                 }
-
-                 Result.SetResult(Res);
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.StopRebuildingRoutes);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
+                if (Res.Success && Res.ResultPayloadAs<bool>())
+                {
+                    this.isRebuildingRoutes = false;
+                }
+            });
         }
 
         // Checked as of : 3.5.0
@@ -830,9 +579,6 @@ namespace ZWaveJS.NET
             ValidateDSKAndEnterPINSub = null;
             GrantSecurityClassesSub = null;
             AbortSub = null;
-
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
 
             switch (Options.strategy)
             {
@@ -850,15 +596,13 @@ namespace ZWaveJS.NET
                 if (ValidateDSKAndEnterPINSub == null || GrantSecurityClassesSub == null || AbortSub == null)
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingS2Callbacks, "S2 Security require userCallbacks to be provided [validateDSKAndEnterPIN, grantSecurityClasses, abort]", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
 
                 if (_driver.Options != null && _driver.Options.MissingKeys(true, true))
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingKeys, "Missing Security Keys in Options", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
             }
 
@@ -868,15 +612,13 @@ namespace ZWaveJS.NET
                 if (ValidateDSKAndEnterPINSub == null || GrantSecurityClassesSub == null || AbortSub == null)
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingS2Callbacks, "S2 Security require userCallbacks to be provided [validateDSKAndEnterPIN, grantSecurityClasses, abort]", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
 
                 if (_driver.Options != null && _driver.Options.MissingKeys(true, false))
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingKeys, "Missing Security Keys in Options", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
             }
 
@@ -885,79 +627,55 @@ namespace ZWaveJS.NET
                 if (_driver.Options != null && _driver.Options.MissingKeys(false, true))
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingKeys, "Missing Security Keys in Options", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
             }
             
             if (_driver.Options != null && !_driver.Options.CheckKeyLength())
             {
                 CMDResult Res = new CMDResult(Enums.ErrorCodes.InvalidkeyLength, "Invalid Key length. All Security Keys must be a 32 character hexadecimal string (representing 16 bytes)", false);
-                Result.SetResult(Res);
-                return Result.Task;
+                return Task.FromResult(Res);
             }
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 Result.SetResult(Res);
-             });
+            var optionsDict = new Dictionary<string, object>
+            {
+                { "strategy", (int)Options.strategy },
+                { "forceSecurity", Options.forceSecurity }
+            };
 
-            Dictionary<string, object> _Options = new Dictionary<string, object>();
-            _Options.Add("strategy", (int)Options.strategy);
-            _Options.Add("forceSecurity", Options.forceSecurity);
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.BeginInclusion },
+                { "options", optionsDict }
+            };
 
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.BeginInclusion);
-            Request.Add("options", _Options);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> StopInclusion()
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.StopInclusion }
+            };
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 Result.SetResult(Res);
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.StopInclusion);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
-        
+
         // Checked as of : 3.5.0
         public Task<CMDResult> ProvisionSmartStartNode(SmartStartProvisioningEntry ProvisioningInformation)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
             if (_driver.Options != null && _driver.Options.MissingKeys(true, true))
             {
                 CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingKeys, "Missing Security Keys in Options", false);
-                Result.SetResult(Res);
-                return Result.Task;
+                return Task.FromResult(Res);
             }
 
             if (_driver.Options != null && !_driver.Options.CheckKeyLength())
             {
                 CMDResult Res = new CMDResult(Enums.ErrorCodes.InvalidkeyLength, "Invalid Key length. All Security Keys must be a 32 character hexadecimal string (representing 16 bytes)", false);
-                Result.SetResult(Res);
-                return Result.Task;
+                return Task.FromResult(Res);
             }
 
             if (ProvisioningInformation.protocol == Protocols.ZWaveLongRange)
@@ -965,106 +683,59 @@ namespace ZWaveJS.NET
                 if (_driver.Options != null && _driver.Options.MissingLRKeys())
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.MissingKeys, "Missing LR Security Keys in Options", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
 
 
                 if (_driver.Options != null && !_driver.Options.CheckKeyLengthLR())
                 {
                     CMDResult Res = new CMDResult(Enums.ErrorCodes.InvalidkeyLength, "Invalid Key length. All Security Keys must be a 32 character hexadecimal string (representing 16 bytes)", false);
-                    Result.SetResult(Res);
-                    return Result.Task;
+                    return Task.FromResult(Res);
                 }
             }
 
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
-            });
+                { "command", Enums.Commands.ProvisionSmartStartNode },
+                { "entry", ProvisioningInformation }
+            };
 
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.ProvisionSmartStartNode);
-            Request.Add("entry", ProvisioningInformation);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> BeginExclusion(ExclusionOptions Options)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.BeginExclusion },
+                { "options", Options }
+            };
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 Result.SetResult(Res);
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.BeginExclusion);
-            Request.Add("options", Options);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
 
         // Checked as of : 3.5.0
         public Task<CMDResult> StopExclusion()
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
+            var request = new Dictionary<string, object>
+            {
+                { "command", Enums.Commands.StopExclusion }
+            };
 
-            _driver.Callbacks.Add(ID, (JO) =>
-             {
-                 CMDResult Res = new CMDResult(JO);
-                 Result.SetResult(Res);
-             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.StopExclusion);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
         
         // Checked as of : 3.5.0
         private Task<CMDResult> _UnprovisionSmartStartNode(object dskOrNodeId)
         {
-            Guid ID = Guid.NewGuid();
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
-            });
+                { "command", Enums.Commands.UnprovisionSmartStartNode },
+                { "dskOrNodeId", dskOrNodeId }
+            };
 
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.UnprovisionSmartStartNode);
-            Request.Add("dskOrNodeId", dskOrNodeId);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return _driver.SendRequestAsync(request);
         }
         
         // LOCAL

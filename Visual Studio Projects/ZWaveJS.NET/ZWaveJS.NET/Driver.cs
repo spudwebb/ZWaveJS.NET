@@ -371,7 +371,7 @@ namespace ZWaveJS.NET
             ControllerEventMap.Add("statistics updated", (JO) =>
             {
                 ControllerStatisticsUpdatedArgs CS = JO.SelectToken("event.statistics").ToObject<ControllerStatisticsUpdatedArgs>();
-               
+              
                 Task.Run(() =>
                 {
                     this.Controller.Trigger_StatisticsUpdated(CS);
@@ -471,13 +471,13 @@ namespace ZWaveJS.NET
                      InclusionGrant RIG = JO.SelectToken("event.requested").ToObject<InclusionGrant>();
                      InclusionGrant SIG = this.Controller.Trigger_GrantSecurityClasses(RIG);
 
-                     Dictionary<string, object> Request = new Dictionary<string, object>();
-                     Request.Add("messageId", Guid.NewGuid().ToString());
-                     Request.Add("command", Enums.Commands.GrantSecurityClasses);
-                     Request.Add("inclusionGrant", SIG);
+                     var request = new Dictionary<string, object>
+                     {
+                         { "command", Enums.Commands.GrantSecurityClasses },
+                         { "inclusionGrant", SIG }
+                     };
 
-                     string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-                     ClientWebSocket.SendInstant(RequestPL);
+                     _ = SendRequestAsync(request);
                  });
 
             });
@@ -488,13 +488,13 @@ namespace ZWaveJS.NET
                 {
                     string DSK = this.Controller.Trigger_ValidateDSK(JO.SelectToken("event.dsk").ToObject<string>());
 
-                    Dictionary<string, object> Request = new Dictionary<string, object>();
-                    Request.Add("messageId", Guid.NewGuid().ToString());
-                    Request.Add("command", Enums.Commands.ValidateDSK);
-                    Request.Add("pin", DSK);
+                    var request = new Dictionary<string, object>
+                    {
+                        { "command", Enums.Commands.ValidateDSK },
+                        { "pin", DSK }
+                    };
 
-                    string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-                    ClientWebSocket.SendInstant(RequestPL);
+                    _ = SendRequestAsync(request);
                 });
             });
 
@@ -802,16 +802,13 @@ namespace ZWaveJS.NET
         {
             if (JO.Value<bool>("success"))
             {
-                Guid CBID = Guid.NewGuid();
-                Callbacks.Add(CBID, StartListetningCB);
+                var request = new Dictionary<string, object>
+                {
+                    { "command", Enums.Commands.StartListetning }
+                };
 
-                Dictionary<string, object> Request = new Dictionary<string, object>();
-                Request.Add("messageId", CBID.ToString());
-                Request.Add("command", Enums.Commands.StartListetning);
-
-                string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-
-                ClientWebSocket.SendInstant(RequestPL);
+                // fire-and-forget; StartListetningCB will be invoked when response arrives
+                _ = SendRequestAsync(request, (respJO, res) => StartListetningCB(respJO));
             }
             else
             {
@@ -857,96 +854,52 @@ namespace ZWaveJS.NET
 
         public Task<CMDResult> ZWJSS_StartListeningLogs()
         {
-            Guid ID = Guid.NewGuid();
-
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
-            });
+                { "command", Enums.Commands.StartListeningLogs }
+            };
 
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.StartListeningLogs);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return SendRequestAsync(request);
         }
 
         public Task<CMDResult> ZWJSS_StopListeningLogs()
         {
-            Guid ID = Guid.NewGuid();
-
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
-            });
+                { "command", Enums.Commands.StopListeningLogs }
+            };
 
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.StopListeningLogs);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return SendRequestAsync(request);
         }
 
         public Task<CMDResult> HardReset()
         {
-            Guid ID = Guid.NewGuid();
-
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
+                { "command", Enums.Commands.HardReset }
+            };
 
-                Restart();
+            return SendRequestAsync(request, (JO, Res) =>
+            {
+                try
+                {
+                    Restart();
+                }
+                catch
+                {
+                    // swallow to avoid breaking completion
+                }
             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.HardReset);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         public Task<CMDResult> SoftReset()
         {
-            Guid ID = Guid.NewGuid();
-
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
-                Result.SetResult(Res);
-            });
+                { "command", Enums.Commands.SoftReset }
+            };
 
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.SoftReset);
-
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
+            return SendRequestAsync(request);
         }
 
         // Proces Message
@@ -989,17 +942,13 @@ namespace ZWaveJS.NET
                     _ZWaveJSDriverVersion = JO.Value<string>("driverVersion");
                     _ZWaveJSServerVersion = JO.Value<string>("serverVersion");
 
-                    Guid CBID = Guid.NewGuid();
-                    Callbacks.Add(CBID, SetAPIVersionCB);
+                    var request = new Dictionary<string, object>
+                    {
+                        { "command", Enums.Commands.SetAPIVersion },
+                        { "schemaVersion", _schemaVersion }
+                    };
 
-                    Dictionary<string, object> Request = new Dictionary<string, object>();
-                    Request.Add("messageId", CBID.ToString());
-                    Request.Add("command", Enums.Commands.SetAPIVersion);
-                    Request.Add("schemaVersion", _schemaVersion);
-
-                    string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-
-                    ClientWebSocket.SendInstant(RequestPL);
+                    _ = SendRequestAsync(request, (respJO, res) => SetAPIVersionCB(respJO));
 
                     return;
                 }
@@ -1038,5 +987,77 @@ namespace ZWaveJS.NET
             }
         }
 
+        internal Task<CMDResult> SendRequestAsync(
+            Dictionary<string, object> request,
+            Action<JObject, CMDResult> mapResult = null,
+            TimeSpan? timeout = null)
+        {
+            Guid id = Guid.NewGuid();
+            request["messageId"] = id;
+
+            var tcs = new TaskCompletionSource<CMDResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            // Register callback
+            Callbacks.Add(id, (JO) =>
+            {
+                try
+                {
+                    var res = new CMDResult(JO);
+                    try
+                    {
+                        mapResult?.Invoke(JO, res);
+                    }
+                    catch (Exception exMap)
+                    {
+                        // if mapping throws, surface it
+                        tcs.TrySetException(exMap);
+                        return;
+                    }
+
+                    tcs.TrySetResult(res);
+                }
+                catch (Exception ex)
+                {
+                    tcs.TrySetException(ex);
+                }
+                finally
+                {
+                    // best-effort cleanup
+                    try { Callbacks.Remove(id); } catch { }
+                }
+            });
+
+            string payload = Newtonsoft.Json.JsonConvert.SerializeObject(request);
+
+            try
+            {
+                var sendTask = ClientWebSocket.SendInstant(payload);
+                sendTask.ContinueWith(t =>
+                {
+                    if (t.IsFaulted)
+                    {
+                        tcs.TrySetException(t.Exception?.GetBaseException() ?? new Exception("SendInstant failed"));
+                        try { Callbacks.Remove(id); } catch { }
+                    }
+                }, TaskContinuationOptions.ExecuteSynchronously);
+            }
+            catch (Exception ex)
+            {
+                tcs.TrySetException(ex);
+                try { Callbacks.Remove(id); } catch { }
+            }
+
+            if (timeout.HasValue)
+            {
+                var cts = new System.Threading.CancellationTokenSource(timeout.Value);
+                cts.Token.Register(() =>
+                {
+                    tcs.TrySetException(new TimeoutException("Request timed out"));
+                    try { Callbacks.Remove(id); } catch { }
+                });
+            }
+
+            return tcs.Task;
+        }
     }
 }

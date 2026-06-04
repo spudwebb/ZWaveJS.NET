@@ -17,67 +17,44 @@ namespace ZWaveJS.NET
         // Checked as of : 3.5.0
         public Task<CMDResult> SupportsCCAPI(int CommandClass)
         {
-            Guid ID = Guid.NewGuid();
-
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
+                { "command", Enums.Commands.SupportsCCAPI },
+                { "nodeId", this.nodeId },
+                { "endpoint", this.index },
+                { "commandClass", CommandClass }
+            };
+
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     Res.SetPayload(JO.SelectToken("result.supported").ToObject<bool>());
                 }
-                Result.SetResult(Res);
-
-              
             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.SupportsCCAPI);
-            Request.Add("nodeId", this.nodeId);
-            Request.Add("endpoint", this.index);
-            Request.Add("commandClass", CommandClass);
-
-            string RequestPL = JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
 
         // Checked as of : 3.5.0
         public Task<CMDResult> InvokeCCAPI(int CommandClass, string Method, params object[] Params)
         {
-            Guid ID = Guid.NewGuid();
-
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
+                { "command", Enums.Commands.InvokeCCAPI },
+                { "nodeId", this.nodeId },
+                { "endpoint", this.index },
+                { "commandClass", CommandClass },
+                { "methodName", Method },
+                { "args", Params }
+            };
+
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     Res.SetPayload(JO.SelectToken("result").ToObject<JObject>());
                 }
-                Result.SetResult(Res);
-
-
             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.InvokeCCAPI);
-            Request.Add("nodeId", this.nodeId);
-            Request.Add("endpoint", this.index);
-            Request.Add("commandClass", CommandClass);
-            Request.Add("methodName", Method);
-            Request.Add("args", Params);
-
-
-            string RequestPL = JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
 
         [Newtonsoft.Json.JsonProperty]
