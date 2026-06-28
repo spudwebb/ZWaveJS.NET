@@ -47,7 +47,7 @@ namespace ZWaveJS.NET
         [Newtonsoft.Json.JsonProperty]
         public Enums.SetValueStatus status { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
-        public string remainingDuration { get; internal set; }
+        public object remainingDuration { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public string message { get; internal set; }
     }
@@ -360,6 +360,20 @@ namespace ZWaveJS.NET
         public int version { get; internal set; }
         [Newtonsoft.Json.JsonProperty]
         public bool isSecure { get; internal set; }
+    }
+
+    public class CommandClassInfo
+    {
+        internal CommandClassInfo() { }
+
+        [Newtonsoft.Json.JsonProperty]
+        public bool isSupported { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public bool isControlled { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public bool secure { get; internal set; }
+        [Newtonsoft.Json.JsonProperty]
+        public int version { get; internal set; }
     }
 
     public class FirmwareVersion

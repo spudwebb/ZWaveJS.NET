@@ -19,30 +19,20 @@ namespace ZWaveJS.NET
         // Checked as of : 3.5.0
         public Task<CMDResult> ParseQRCodeString(string QR)
         {
-            Guid ID = Guid.NewGuid();
-
-            TaskCompletionSource<CMDResult> Result = new TaskCompletionSource<CMDResult>();
-
-            _driver.Callbacks.Add(ID, (JO) =>
+            var request = new Dictionary<string, object>
             {
-                CMDResult Res = new CMDResult(JO);
+                { "command", Enums.Commands.ParseQRCodeString },
+                { "qr", QR }
+            };
+
+            return _driver.SendRequestAsync(request, (JO, Res) =>
+            {
                 if (Res.Success)
                 {
                     QRProvisioningInformation PQR = JO.SelectToken("result.qrProvisioningInformation").ToObject<QRProvisioningInformation>();
                     Res.SetPayload(PQR);
                 }
-                Result.SetResult(Res);
             });
-
-            Dictionary<string, object> Request = new Dictionary<string, object>();
-            Request.Add("messageId", ID);
-            Request.Add("command", Enums.Commands.ParseQRCodeString);
-            Request.Add("qr", QR);
-            
-            string RequestPL = Newtonsoft.Json.JsonConvert.SerializeObject(Request);
-            _driver.ClientWebSocket.SendInstant(RequestPL);
-
-            return Result.Task;
         }
     }
 }
